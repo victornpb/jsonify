@@ -18,13 +18,13 @@ Just turn this:
 Into this:
 ```json
 {
-    "foo": "bar",
-    "hello": "world"
+    "foo": "bar",
+    "hello": "world"
 }
 ```
 
 -----------
 
-<h1><a href="https://victornpb.github.io/jsonify/">https://victornpb.github.io/jsonify/</a></h1>
+<h1 style="text-align:center;"><a href="https://victornpb.github.io/jsonify/">https://victornpb.github.io/jsonify/</a></h1>
 
 -----------
