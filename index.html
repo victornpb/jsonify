@@ -115,6 +115,11 @@
             color: white;
             resize: none;
             height: 100%;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: #0088ff;
         }
 
         .floating-tools {
@@ -140,18 +145,107 @@
             color: white;
         }
     </style>
-</head>
+    <script type="text/javascript">
+        var $ = document.querySelector.bind(document);
 
+        var inputTextarea = $('#inputTextarea');
+        var clearInputBtn = $('#inputDiv .clear');
+        var selectInputBtn = $('#inputDiv .select');
+        var outputTextarea = $('#outputTextarea');
+        var clearOutputBtn = $('#outputDiv .clear');
+        var selectOutputBtn = $('#outputDiv .select');
+        var convertBtn = $('#convertBtn');
+
+        convertBtn.onclick = function (e) {
+            e.preventDefault();
+            var inputText = inputTextarea.value || inputTextarea.placeholder;
+            var outputText = convert(inputText);
+            outputTextarea.value = outputText;
+            outputTextarea.select();
+        };
+
+        clearInputBtn.onclick = function () {
+            inputTextarea.value = '';
+            inputTextarea.focus();
+
+            delete localStorage.draft;
+            console.clear();
+        };
+        selectInputBtn.onclick = function () {
+            inputTextarea.focus();
+            inputTextarea.select();
+            document.execCommand('copy');
+        };
+        clearOutputBtn.onclick = function () {
+            outputTextarea.value = '';
+            outputTextarea.focus();
+        };
+        selectOutputBtn.onclick = function () {
+            outputTextarea.focus();
+            outputTextarea.select();
+            document.execCommand('copy');
+        };
+
+        // save input as you type
+        var debounceTimer;
+        inputTextarea.onkeyup = function () {
+            if (debounceTimer) clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(function () {
+                localStorage.draft = inputTextarea.value;
+                debounceTimer = undefined;
+            }, 600);
+        };
+
+
+        function convert(str) {
+            var tempObj;
+            var outputText;
+            try {
+                var tempObj = eval('([' + str + '])')[0]; // TODO: make this less scary
+                outputText = JSON.stringify(tempObj, modifier, '    '); // TODO: allow spaces, tabs etc...
+            } catch (err) {
+                // console.error(err);
+                outputText = err;
+            }
+
+            setGlobals(tempObj, outputText);
+
+            console.log(tempObj);
+            return outputText;
+        }
+        function modifier(key, value) {
+            return value;
+        }
+
+        // set object to global so we can play around with it on the console
+        function setGlobals(obj, str) {
+            window.obj = obj;
+            window.str = str;
+        }
+
+
+        window.onload = function () {
+            console.log('You can access the parsed object using the global variable `obj` and the string `str`. Have fun!');
+
+            // restore previous input
+            if (localStorage.draft) inputTextarea.value = localStorage.draft;
+
+            var sample = "/* javascript */\n{\n  foo: 'bar',\n  hello: 'world',\n}";
+            inputTextarea.placeholder = sample;
+            outputTextarea.placeholder = convert(sample);
+        };
+
+    </script>
+</head>
 <body>
     <header>
         <h4 class="title">
-            Convert Javascript Object to JSON
+            Javascript Object to JSON
         </h4>
         <nav>
             <div>
                 <a id="convertBtn" href="#">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
-                        stroke-linejoin="round" class="feather feather-play">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" class="feather feather-play">
                         <polygon points="5 3 19 12 5 21 5 3"></polygon>
                     </svg>
                     Convert
@@ -177,84 +271,6 @@
             <textarea id="outputTextarea" class="form-control" rows="40"></textarea>
         </div>
     </div>
-
-    <script>
-        var $ = document.querySelector.bind(document);
-
-        var inputTextarea = $('#inputTextarea');
-        var clearInputBtn = $('#inputDiv .clear');
-        var selectInputBtn = $('#inputDiv .select');
-        var outputTextarea = $('#outputTextarea');
-        var clearOutputBtn = $('#outputDiv .clear');
-        var selectOutputBtn = $('#outputDiv .select');
-        var convertBtn = $('#convertBtn');
-
-        convertBtn.onclick = function (e) {
-            e.preventDefault();
-            var inputText = inputTextarea.value || inputTextarea.placeholder;
-            var outputText = convert(inputText);
-            outputTextarea.value = outputText;
-            outputTextarea.select();
-        };
-
-        clearInputBtn.onclick = function () {
-            inputTextarea.value = '';
-            inputTextarea.focus();
-            console.clear();
-        };
-        selectInputBtn.onclick = function () {
-            inputTextarea.focus();
-            inputTextarea.select();
-            document.execCommand('copy');
-        };
-        clearOutputBtn.onclick = function () {
-            outputTextarea.value = '';
-            outputTextarea.focus();
-        };
-        selectOutputBtn.onclick = function () {
-            outputTextarea.focus();
-            outputTextarea.select();
-            document.execCommand('copy');
-        };
-
-
-        function convert(str) {
-            var tempObj;
-            var outputText;
-            try {
-                var tempObj = eval('([' + str + '])')[0]; //TODO: make this less scary
-                outputText = JSON.stringify(tempObj, modifier, '    '); //TODO: allow spaces, tabs etc...
-            } catch (err) {
-                // console.error(err);
-                outputText = err;
-            }
-
-            setGlobals(tempObj, outputText); //set object to global so we can play around with it on the console
-
-            console.log(tempObj);
-            return outputText;
-        }
-        function modifier(key, value) {
-            return value;
-        }
-
-
-        function setGlobals(obj, str) {
-            window.obj = obj;
-            window.str = str;
-        }
-
-
-        window.onload = function () {
-
-            console.log('You can access the parsed object using the global variable `obj` and the string `str`. Have fun!');
-
-            var sample = "/* javascript */\n{\n  foo: 'bar',\n  hello: 'world',\n}";
-            inputTextarea.placeholder = sample;
-            outputTextarea.placeholder = convert(sample);
-        };
-
-    </script>
-
 </body>
+
 </html>
