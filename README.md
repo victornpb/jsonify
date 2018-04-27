@@ -8,10 +8,10 @@ Comments?
 
 Just turn this:
 ```js
-/* Hi */
+/* Javascript object */
 {
-  foo: 'bar', //see
-  'hello': `world`, //trailing comma?
+  foo: 'bar', // comment
+  'hello': `world`, // trailing comma?
 }
 ```
 
