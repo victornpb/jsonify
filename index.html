@@ -191,7 +191,7 @@
 
         convertBtn.onclick = function (e) {
             e.preventDefault();
-            var inputText = inputTextarea.value;
+            var inputText = inputTextarea.value || inputTextarea.placeholder;
             var outputText = convert(inputText);
             outputTextarea.value = outputText;
             outputTextarea.select();
